@@ -1,0 +1,6 @@
+.pio/
+.vscode/
+backups/
+platformio.local.ini
+# Wi-Fi and OTA passwords. Never commit this; see include/credentials.example.h.
+include/credentials.h
