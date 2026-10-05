@@ -216,13 +216,29 @@ Every write is logged with its bytes and outcome, for example `TX power ON  A0 1
 
 On each connection the firmware prints and checks, before allowing any write:
 
-1. The target address `90:00:00:32:A9:9D` is seen advertising, and its **address type as advertised** (a PC scan recorded it as public). The connection uses the type the strip itself advertises rather than an assumption.
+1. The target address (`LIGHT_ADDRESS`) is seen advertising, and its **address type as advertised** (a PC scan recorded it as public). The connection uses the type the strip itself advertises rather than an assumption.
 2. The advertised name and the GAP Device Name begin with `Smart Light`.
 3. Service `FF10` and characteristic `FF12` exist, and `FF12` accepts writes with response. Its properties are printed.
 
 If a check fails the link goes to `REFUSED` and stays there until you type `link on`. There is no pairing, and no fallback to write-without-response.
 
 It also subscribes to notifications on `FF11`, as the phone app does, so replies can be logged.
+
+## Using your own strip
+
+The Bluetooth address in `platformio.ini` is the author's strip. **Replace it with your own**, or the joystick will scan forever and never connect:
+
+```ini
+'-DLIGHT_ADDRESS="90:00:00:32:a9:9d"'   ; under [env:joystick_light] - put your strip's address here
+```
+
+To find your strip's address:
+
+1. Power the strip and close the Allbest Home app on every phone. A strip that is connected to something does not advertise and will not show up.
+2. Scan with a Bluetooth LE scanner: for example the nRF Connect app on Android, or `bluetoothctl scan on` on Linux. Look for a device named `Smart Light`; the address is the six pairs of hex digits shown with it. iPhone apps cannot show Bluetooth addresses, so use Android or a computer.
+3. Put that address in `platformio.ini`, upload `joystick_light`, and type `link on`.
+
+The firmware only accepts a device at that address that is named `Smart Light` and has the `FF10` / `FF12` profile described below. A strip of another make, or one that speaks a different protocol, will be refused rather than sent commands it may not understand.
 
 ## Light protocol
 
@@ -290,3 +306,7 @@ tools/              run_host_tests.ps1, backup_flash.ps1, pio_ota.py
 - A sustained stream of 5 writes per second has only been tried informally. `minCommandIntervalMs` in `lib\joycore\src\light_control.h` slows it down if needed.
 - What the strip does with colour or brightness commands while it is off (which is why tilt is ignored in that state), and whether it keeps its colour across power cycles.
 - Any strip other than the one this was captured from.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
